@@ -2,8 +2,6 @@ import sdtfile
 import numpy as np
 import zipfile
 
-filename ='LifetimeData_Cycle00001_000005.sdt'
-
 
 def read_sdt_info_brukerSDT(filename):
     """ 
@@ -82,5 +80,3 @@ def read_sdt150(filename):
     print("READ DATA IN:",dataSDT.shape)
     return (dataSDT)
 
-
-sdtData = read_sdt150(filename)

@@ -11,15 +11,19 @@ def read_sdt_openscan(filename,print_on=False):
         ## HEADER
         header = np.rec.fromfile(fid, dtype=sdtfile.sdtfile.FILE_HEADER,
                                      shape=1, byteorder='<')[0]
-        
+        #print(header)
         if print_on:
-            #FH = sdtfile.sdtfile.FILE_HEADER
-            #FH= [i[0] for i in FH]
-            for j in (zip(FH,header)):
+            FH = sdtfile.sdtfile.FILE_HEADER
+            FH= [i[0] for i in FH]
+            for j in zip(FH,header):
                 print(j)
 
         ## INFO
-        fid.seek(header.info_offset)
+        
+        if ('info_offset' in header.dtype.names):
+            fid.seek(header.info_offset)
+        else:
+            fid.seek(header.info_offs)
         info = fid.read(header.info_length).decode('windows-1250')
         info = info.replace('\r\n', '\n')
         if print_on:
@@ -30,7 +34,11 @@ def read_sdt_openscan(filename,print_on=False):
         fsetup = sdtfile.SetupBlock(fid.read(header.setup_length)) # cant read this !
 
         ## MEAS_BLOCK
-        fh=fid.seek(header.meas_desc_block_offset)    
+        if ('meas_desc_block_offset' in header.dtype.names):
+            fh=fid.seek(header.meas_desc_block_offset)  
+        else:
+            fh=fid.seek(header.meas_desc_block_offs)
+              
         mblocks=[]
         for measblock_index in range(header.no_of_meas_desc_blocks):
             #fmeas_blk = fid.read()
@@ -53,11 +61,22 @@ def read_sdt_openscan(filename,print_on=False):
         ## BLOCK HEADER AND DATABLOCKS :
         bheads=[]
         data_list=[]
-        offset = header.data_block_offset
+        
+                ## MEAS_BLOCK
+        if ('data_block_offset' in header.dtype.names):
+            offset = header.data_block_offset 
+        else:
+            offset = header.data_block_offs
+
+        
+
         for datablock_index in range(header.no_of_data_blocks):
 
             fid.seek(offset)
-            bh=(np.rec.fromfile(fid, dtype=sdtfile.sdtfile.BLOCK_HEADER_15, shape=1, byteorder='<')[0])
+            if hasattr(sdtfile.sdtfile, 'BLOCK_HEADER_15'):
+                bh=(np.rec.fromfile(fid, dtype=sdtfile.sdtfile.BLOCK_HEADER_15, shape=1, byteorder='<')[0])
+            else:
+                bh=(np.rec.fromfile(fid, dtype=sdtfile.sdtfile.BLOCK_HEADER_OLD, shape=1, byteorder='<')[0])
             bheads.append(bh)
             fid.seek(bh.data_offs)  
 

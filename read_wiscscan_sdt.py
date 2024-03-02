@@ -55,7 +55,7 @@ def read_sdt_wiscscan(filename):
     import warnings
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     t, XYTC = read_sdt_info_wiscscan(filename)
-    print(XYTC)
+    #print(XYTC)
     #with zipfile.ZipFile(filename) as myzip:
     #    z1 = myzip.infolist()[0]  # "data_block"
     
@@ -67,5 +67,5 @@ def read_sdt_wiscscan(filename):
     
     dataSDT = dataSDT[:XYTC[0] * XYTC[1] * XYTC[2]].reshape([ XYTC[0], XYTC[1], XYTC[2]])
 
-    print("READ DATA IN:",dataSDT.shape)
+    #print("READ DATA IN:",dataSDT.shape)
     return (dataSDT)

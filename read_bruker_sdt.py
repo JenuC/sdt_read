@@ -31,7 +31,7 @@ def read_sdt_info_brukerSDT(filename):
 
     offset = header.data_block_offset[0]
 
-    print()
+    #print()
     with open(filename, 'rb') as fh:
         for _ in range(header.no_of_data_blocks[0]): ## 
             fh.seek(offset)
@@ -77,6 +77,6 @@ def read_sdt150(filename):
                 pass
     else:
         dataSDT = dataSDT[:XYTC[0] * XYTC[1] * XYTC[2] * XYTC[3]].reshape([XYTC[0], XYTC[1], XYTC[2]])
-    print("READ DATA IN:",dataSDT.shape)
+    #print("READ DATA IN:",dataSDT.shape)
     return (dataSDT)
 

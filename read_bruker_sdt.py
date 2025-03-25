@@ -80,3 +80,29 @@ def read_sdt150(filename):
     #print("READ DATA IN:",dataSDT.shape)
     return (dataSDT)
 
+
+def read_bruker_sdt(filename):
+    """
+    Reads a Bruker .sdt file and returns a list of reshaped data blocks.
+
+    Parameters:
+        filename (str): Path to the .sdt file.
+
+    Returns:
+        list of np.ndarray: Reshaped data blocks with shape (channels, x, y, time).
+    """
+    sdt = sdtfile.SdtFile(filename)
+    data_blocks = []
+
+    for index, block in enumerate(sdt.data):
+        scan_info = sdt.measure_info[index]
+        x, y, t = scan_info.scan_x, scan_info.scan_y, scan_info.adc_re
+        channels = scan_info.image_rx
+
+        if block.size == x * y * t * channels:
+            block = block.reshape((channels, x, y, t))
+
+        data_blocks.append(block.copy())
+
+    return data_blocks
+

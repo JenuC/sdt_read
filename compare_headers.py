@@ -67,13 +67,6 @@ print(
 print("[bold]Header Comparison[/bold]")
 compare_records(data1.header, data2.header, "Data1 Header", "Data2 Header")
 
-print("[bold]Measure Info Comparison[/bold]")
-compare_records(
-    data1.measure_info[0],
-    data2.measure_info[0],
-    "Data1 Measure Info",
-    "Data2 Measure Info",
-)
 
 print("[bold]Block Header Comparison[/bold]")
 compare_records(
@@ -81,4 +74,12 @@ compare_records(
     data2.block_headers[0],
     "Data1 Block Header",
     "Data2 Block Header",
+)
+
+print("[bold]Measure Info Comparison[/bold]")
+compare_records(
+    data1.measure_info[0],
+    data2.measure_info[0],
+    "Data1 Measure Info",
+    "Data2 Measure Info",
 )

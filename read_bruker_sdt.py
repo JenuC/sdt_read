@@ -1,6 +1,9 @@
 import sdtfile
 import numpy as np
 import zipfile
+import pathlib
+import io
+from sdtfile import SdtFile
 
 
 def read_sdt_info_brukerSDT(filename):
@@ -132,3 +135,26 @@ def read_bruker_sdt(filename):
         data_blocks.append(block.copy())
 
     return data_blocks
+
+
+def read_bruker_pointscan_sdt(fn: pathlib.Path) -> np.ndarray:
+
+    plim_file = SdtFile(fn)
+    measure_info = plim_file.measure_info[0]
+    T = int(measure_info["adc_re"])
+    X = int(measure_info["image_x"])
+    Y = int(measure_info["image_y"])
+
+    raw_files = list(fn.parent.glob("*.raw"))
+    raw_flim_file, raw_plim_file = raw_files
+
+    with open(raw_plim_file, "rb") as fid:
+        bio = io.BytesIO(fid.read())
+        with zipfile.ZipFile(bio) as zf:
+            databytes = zf.read(zf.filelist[0].filename)
+
+    # Convert bytes to NumPy array and reshape
+    data = np.frombuffer(databytes, dtype=np.uint16, count=X * Y * T)
+    data = data.reshape((Y, X, T))
+
+    return data

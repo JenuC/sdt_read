@@ -70,7 +70,13 @@ def read_sdt_info_brukerSDT(filename):
 
             times.append(t)
             offset = bh.next_block_offs
-        return (times, [mi.scan_x[0], mi.scan_y[0], mi.adc_re[0], routing_channels_x])
+
+        axis_dim = [
+            int(x)
+            for x in [mi.scan_x[0], mi.scan_y[0], mi.adc_re[0], routing_channels_x]
+        ]
+
+        return (times, axis_dim)
 
 
 def read_sdt150(filename):
@@ -80,10 +86,23 @@ def read_sdt150(filename):
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     t, XYTC = read_sdt_info_brukerSDT(filename)
 
-    with zipfile.ZipFile(filename) as myzip:
-        z1 = myzip.infolist()[0]  # "data_block"
-        with myzip.open(z1.filename) as myfile:
-            dataspl = myfile.read()
+    try:
+        with zipfile.ZipFile(filename) as myzip:
+            infolist = myzip.infolist()
+            if not infolist:
+                raise ValueError("Zip file is empty.")
+            z1 = infolist[0]  # e.g., "data_block"
+            with myzip.open(z1.filename) as myfile:
+                dataspl = myfile.read()
+    except zipfile.BadZipFile:
+        print(f"Not a valid zip file: {filename}")
+        x, y, t, c = [int(a) for a in XYTC]
+        with open(filename, "rb") as f:
+            dataspl = f.read()
+            dataspl = dataspl[len(dataspl) - (x * y * t * c * 2) :]
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        dataspl = None
 
     dataSDT = np.fromstring(dataspl, np.uint16)
 

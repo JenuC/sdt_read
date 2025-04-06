@@ -85,7 +85,7 @@ def read_sdt150(filename):
 
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     t, XYTC = read_sdt_info_brukerSDT(filename)
-
+    x, y, t, c = [int(a) for a in XYTC]
     try:
         with zipfile.ZipFile(filename) as myzip:
             infolist = myzip.infolist()
@@ -95,8 +95,8 @@ def read_sdt150(filename):
             with myzip.open(z1.filename) as myfile:
                 dataspl = myfile.read()
     except zipfile.BadZipFile:
-        print(f"Not a valid zip file: {filename}")
-        x, y, t, c = [int(a) for a in XYTC]
+        # print(f"Not a valid zip file: {filename}")
+
         with open(filename, "rb") as f:
             dataspl = f.read()
             dataspl = dataspl[len(dataspl) - (x * y * t * c * 2) :]
@@ -106,10 +106,8 @@ def read_sdt150(filename):
 
     dataSDT = np.fromstring(dataspl, np.uint16)
 
-    if XYTC[3] > 1:
-        dataSDT = dataSDT[: XYTC[0] * XYTC[1] * XYTC[2] * XYTC[3]].reshape(
-            [XYTC[3], XYTC[0], XYTC[1], XYTC[2]]
-        )
+    if c > 1:
+        dataSDT = dataSDT[: x * y * t * c].reshape([c, x, y, t])
         if (
             dataSDT[0, :, :, :].sum() == 0
         ):  # bruker uses two channels and keeps one empty!!!
@@ -123,9 +121,7 @@ def read_sdt150(filename):
             else:
                 pass
     else:
-        dataSDT = dataSDT[: XYTC[0] * XYTC[1] * XYTC[2] * XYTC[3]].reshape(
-            [XYTC[0], XYTC[1], XYTC[2]]
-        )
+        dataSDT = dataSDT[: x * y * t * c].reshape([x, y, t])
     # print("READ DATA IN:",dataSDT.shape)
     return dataSDT
 

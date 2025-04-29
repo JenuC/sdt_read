@@ -1,2 +1,2 @@
 # sdt_read
-sdt reader for bruker and wiscscan sdt files
+sdt reader for OpenScan, Bruker and WiscScan *.sdt files

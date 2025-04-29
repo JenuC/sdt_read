@@ -18,7 +18,12 @@ def read_sdt_info_brukerSDT(filename):
         )
 
     measure_info = []
-    dtype = np.dtype(sdtfile.sdtfile.MEASURE_INFO)
+    #dtype = np.dtype(sdtfile.sdtfile.MEASURE_INFO)
+    ## meeting requirements from https://github.com/cgohlke/sdtfile/commit/4c574b437aa8cefefaf700d804ec66ae11a6c22c
+    dtype = sdtfile.sdtfile.record_dtype(
+            sdtfile.sdtfile.MEASURE_INFO, int(header.meas_desc_block_length)
+        )
+    #print(dtype)
     with open(filename, "rb") as fh:
         if "meas_desc_block_offset" in header.dtype.names:
             fh.seek(header.meas_desc_block_offset[0])
@@ -127,49 +132,5 @@ def read_sdt150(filename):
 
 
 def read_bruker_sdt(filename):
-    """
-    Reads a Bruker .sdt file and returns a list of reshaped data blocks.
-
-    Parameters:
-        filename (str): Path to the .sdt file.
-
-    Returns:
-        list of np.ndarray: Reshaped data blocks with shape (channels, x, y, time).
-    """
-    sdt = sdtfile.SdtFile(filename)
-    data_blocks = []
-
-    for index, block in enumerate(sdt.data):
-        scan_info = sdt.measure_info[index]
-        x, y, t = scan_info.scan_x, scan_info.scan_y, scan_info.adc_re
-        channels = scan_info.image_rx
-
-        if block.size == x * y * t * channels:
-            block = block.reshape((channels, x, y, t))
-
-        data_blocks.append(block.copy())
-
-    return data_blocks
-
-
-def read_bruker_pointscan_sdt(fn: pathlib.Path) -> np.ndarray:
-
-    plim_file = SdtFile(fn)
-    measure_info = plim_file.measure_info[0]
-    T = int(measure_info["adc_re"])
-    X = int(measure_info["image_x"])
-    Y = int(measure_info["image_y"])
-
-    raw_files = list(fn.parent.glob("*.raw"))
-    raw_flim_file, raw_plim_file = raw_files
-
-    with open(raw_plim_file, "rb") as fid:
-        bio = io.BytesIO(fid.read())
-        with zipfile.ZipFile(bio) as zf:
-            databytes = zf.read(zf.filelist[0].filename)
-
-    # Convert bytes to NumPy array and reshape
-    data = np.frombuffer(databytes, dtype=np.uint16, count=X * Y * T)
-    data = data.reshape((Y, X, T))
-
-    return data
+    return read_sdt150(filename)
+    

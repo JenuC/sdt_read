@@ -76,7 +76,8 @@ def read_sdt_info_brukerSDT(filename):
             times.append(t)
             offset = bh.next_block_offs
         
-        ## remember: SCAN-SYNC-IN format loves the imagesizes in scan_x,scan_y instead of image_x,image_y
+        ## SCAN-SYNC-IN format loves the imagesizes in scan_x,scan_y instead of image_x,image_y
+        ## need to check large file- adc.re>512 that breaks the code
         axis_dim = [
             int(x)
             for x in [mi.scan_x[0], mi.scan_y[0], mi.adc_re[0], routing_channels_x]
@@ -87,6 +88,7 @@ def read_sdt_info_brukerSDT(filename):
 
 def read_sdt150(filename):
     """sdt bruker uses data_block001 instead of data_block"""
+    # TODO: Need to move into simpler sdtfile-py reading for scan-sync in support
     import warnings
 
     warnings.filterwarnings("ignore", category=DeprecationWarning)

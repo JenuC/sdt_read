@@ -25,7 +25,7 @@ def read_sdt_info_wiscscan(filename):
 
     try:
         routing_channels_x = measure_info[0]['image_rx'][0]
-    except:
+    except:  # TODO(review#4): bare except — narrow to except (KeyError, IndexError)
         routing_channels_x = 1
 
     offset = header.data_block_offset[0]
@@ -63,7 +63,7 @@ def read_sdt_wiscscan(filename):
         dataspl = myfile.read()
         
     uint16_size=2
-    dataSDT = np.fromstring(dataspl[-np.prod(np.array(XYTC))*uint16_size:], np.uint16)
+    dataSDT = np.fromstring(dataspl[-np.prod(np.array(XYTC))*uint16_size:], np.uint16)  # TODO(review#3): np.fromstring is deprecated, use np.frombuffer
     
     dataSDT = dataSDT[:XYTC[0] * XYTC[1] * XYTC[2]].reshape([ XYTC[0], XYTC[1], XYTC[2]])
 

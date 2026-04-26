@@ -66,7 +66,7 @@ def read_sdt_info_brukerSDT(filename):
             # t = np.arange(mi.adc_re[0], dtype=np.float64) # numpy after 1.25 reads them as array with ndim=1
             # t *= mi.tac_r / float(mi.tac_g * mi.adc_re)
             t = np.arange(mi["adc_re"][0], dtype=np.float64)
-            t *= mi["tac_r"] / mi["tac_g"] * mi["adc_re"]
+            t *= mi["tac_r"] / mi["tac_g"] * mi["adc_re"]  # TODO(review#1): BUG? formula is (tac_r/tac_g)*adc_re but other readers use tac_r/(tac_g*adc_re)
 
             if "image_rx" in mi.dtype.names:
                 routing_channels_x = mi["image_rx"][0]
@@ -110,9 +110,9 @@ def read_sdt150(filename):
             dataspl = dataspl[len(dataspl) - (x * y * t * c * 2) :]
     except Exception as e:
         print(f"An error occurred: {e}")
-        dataspl = None
+        dataspl = None  # TODO(review#2): BUG — dataspl=None causes np.fromstring to crash on next line. Raise or return early.
 
-    dataSDT = np.fromstring(dataspl, np.uint16)
+    dataSDT = np.fromstring(dataspl, np.uint16)  # TODO(review#3): np.fromstring is deprecated, use np.frombuffer
 
     if c > 1:
         dataSDT = dataSDT[: x * y * t * c].reshape([c, x, y, t])
